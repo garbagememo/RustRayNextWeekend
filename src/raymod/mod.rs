@@ -2,14 +2,12 @@ mod vec3;
 mod rayunit;
 mod optarg;
 mod material;
-//mod aabb;
-//mod bvh;
+mod aabb;
 pub use self::vec3::*;
 pub use self::rayunit::*;
 pub use self::optarg::*;
 pub use self::material::*;
-//pub use self::aabb::*;
-//pub use self::bvh::*;
+pub use self::aabb::*;
 
 pub const EPS: f64 = 1e-6;
 pub const INF: f64 = 1e20;

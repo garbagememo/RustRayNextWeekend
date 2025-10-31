@@ -1,12 +1,11 @@
-use crate::aabb::*;
-use crate::hittable::*;
-use crate::ray::Ray;
+use crate::raymod::*;
+
 use std::cmp::Ordering;
 use std::f64;
 
 enum BVHNode {
     Branch { left: Box<BVH>, right: Box<BVH> },
-    Leaf(Box<dyn Hittable>),
+    Leaf(Box<dyn Shape>),
 }
 
 pub struct BVH {
@@ -15,15 +14,11 @@ pub struct BVH {
 }
 
 impl BVH {
-    pub fn new(mut hittable: Vec<Box<dyn Hittable>>, time0: f64, time1: f64) -> Self {
-        fn box_compare(
-            time0: f64,
-            time1: f64,
-            axis: usize,
-        ) -> impl FnMut(&Box<dyn Hittable>, &Box<dyn Hittable>) -> Ordering {
+    pub fn new(mut Shape: Vec<Box<dyn Shape>>) -> Self {
+        fn box_compare(axis: usize,) -> impl FnMut(&Box<dyn Shape>, &Box<dyn Shape>) -> Ordering {
             move |a, b| {
-                let a_bbox = a.bounding_box(time0, time1);
-                let b_bbox = b.bounding_box(time0, time1);
+                let a_bbox = a.bounding_box();
+                let b_bbox = b.bounding_box();
                 if let (Some(a), Some(b)) = (a_bbox, b_bbox) {
                     let ac = a.min[axis] + a.max[axis];
                     let bc = b.min[axis] + b.max[axis];
@@ -34,39 +29,16 @@ impl BVH {
             }
         }
 
-        fn axis_range(
-            hittable: &Vec<Box<dyn Hittable>>,
-            time0: f64,
-            time1: f64,
-            axis: usize,
-        ) -> f64 {
-            let (min, max) = hittable
-                .iter()
-                .fold((f64::MAX, f64::MIN), |(bmin, bmax), hit| {
-                    if let Some(aabb) = hit.bounding_box(time0, time1) {
-                        (bmin.min(aabb.min[axis]), bmax.max(aabb.max[axis]))
-                    } else {
-                        (bmin, bmax)
-                    }
-                });
-            max - min
-        }
+        let axis_random = random();
+        let if axis_random<0.33 {axis = 0 } else if axis_random<0.66 { axis = 1 } else { axis = 2 };
 
-        let mut axis_ranges: Vec<(usize, f64)> = (0..3)
-            .map(|a| (a, axis_range(&hittable, time0, time1, a)))
-            .collect();
-
-        axis_ranges.sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
-
-        let axis = axis_ranges[0].0;
-
-        hittable.sort_unstable_by(box_compare(time0, time1, axis));
-        let len = hittable.len();
+        Shape.sort_unstable_by(box_compare(axis));
+        let len = Shape.len();
         match len {
             0 => panic!["no elements in scene"],
             1 => {
-                let leaf = hittable.pop().unwrap();
-                if let Some(bbox) = leaf.bounding_box(time0, time1) {
+                let leaf = Shape.pop().unwrap();
+                if let Some(bbox) = leaf.bounding_box() {
                     BVH {
                         tree: BVHNode::Leaf(leaf),
                         bbox,
@@ -76,8 +48,8 @@ impl BVH {
                 }
             }
             _ => {
-                let right = BVH::new(hittable.drain(len / 2..).collect(), time0, time1);
-                let left = BVH::new(hittable, time0, time1);
+                let right = BVH::new(Shape.drain(len / 2..).collect(), );
+                let left = BVH::new(Shape, );
                 let bbox = surrounding_box(&left.bbox, &right.bbox);
                 BVH {
                     tree: BVHNode::Branch {
@@ -91,7 +63,7 @@ impl BVH {
     }
 }
 
-impl Hittable for BVH {
+impl Shape for BVH {
     fn hit(&self, ray: &Ray, t_min: f64, mut t_max: f64) -> Option<HitRecord> {
         if !self.bbox.hit(&ray, t_min, t_max) {
             return None;
@@ -113,7 +85,7 @@ impl Hittable for BVH {
         }
     }
 
-    fn bounding_box(&self, _t0: f64, _t1: f64) -> Option<AABB> {
+    fn bounding_box(&self,) -> Option<AABB> {
         Some(self.bbox.clone())
     }
 }

@@ -92,6 +92,7 @@ impl HitInfo {
 
 pub trait Shape: Sync {
     fn hit(&self, ray: &Ray, t0: f64, t1: f64) ->Option<HitInfo>;
+    fn bounding_box(&self,) -> Option<AABB>;
 }
 
 pub struct Sphere {
@@ -129,6 +130,12 @@ impl Shape for Sphere {
         }
         None
     }
+    fn bounding_box(&self,) -> Option<AABB> {
+        let radius = Vec3::new(self.radius, self.radius, self.radius);
+        let min = self.center - radius;
+        let max = self.center + radius;
+        Some(AABB { min, max })
+    }
 }
 
 pub struct ShapeList {
@@ -142,58 +149,7 @@ impl ShapeList {
     pub fn push(&mut self, object: Box<dyn Shape>) {
         self.objects.push(object);
     }
-    pub fn random_scene(&mut self){
-        self.push(Box::new(Sphere::new(
-            Vec3::new(0.0, -1000.0, 0.0),
-            1000.0,
-            Arc::new(Lambertian::new(Vec3::new(0.5, 0.5, 0.5))),
-        )));
-        for a in -11..11 {
-            for b in -11..11 {
-                let choose_mat=random();
-                let center=Vec3::new(a as f64 + 0.9 * random(), 0.2, b as f64 + 0.9 * random() );
-                if (center-Vec3::new(4.0,0.2,0.0)).length().sqrt() > 0.9 {
-                    if choose_mat < 0.8 {
-                        // diffuse
-                        let albedo = Vec3::random().mult(Vec3::random() );
-                        self.push(Box::new(Sphere::new(
-                            center,
-                            0.2,
-                            Arc::new(Lambertian::new(albedo)),
-                        )));                    
-                    }else if choose_mat <0.95{
-                        // Metal
-                        let fuzz= random_range(0.0,0.5);
-                        let albedo=Vec3::vec3_random_range(0.5,1.0);
-                        self.push(Box::new(Sphere::new(
-                            center,
-                            0.2,
-                            Arc::new(Metal::new(albedo,fuzz)),
-                        )));
-                    } else {
-                        // glass
-                        self.push(Box::new(Sphere::new(
-                            center,
-                            0.2,
-                            Arc::new(Dielectric::new(1.5)),
-                        )));
-                    }
-                }
-            }
-        }
-        self.push(Box::new(Sphere::new(
-            Vec3::new(0.0,1.0,0.0),
-            1.0,
-            Arc::new(Dielectric::new(1.5)),)));
-        self.push(Box::new(Sphere::new(
-            Vec3::new(-4.0,1.0,0.0),
-            1.0,
-            Arc::new(Lambertian::new(Vec3::new(0.4,0.2,0.1)),))));
-        self.push(Box::new(Sphere::new(
-            Vec3::new(4.0,1.0,0.0),
-            1.0,
-            Arc::new(Metal::new(Vec3::new(0.7,0.6,0.5),0.0),))));
-    }
+    
 }
 
 impl Shape for ShapeList {
@@ -207,5 +163,19 @@ impl Shape for ShapeList {
             }
         }
         hit_info
+    }
+    fn bounding_box(&self, ) -> Option<AABB> {
+        match self.objects.first() {
+            Some(first) => match first.bounding_box() {
+                Some(bbox) => self.objects.iter().skip(1).try_fold(bbox, |acc, shape | {
+                    match shape.bounding_box() {
+                        Some(bbox) => Some(surrounding_box(&acc, &bbox)),
+                        _ => None,
+                    }
+                }),
+                _ => None,
+            },
+            _ => None,
+        }
     }
 }
