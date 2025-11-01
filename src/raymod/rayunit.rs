@@ -89,11 +89,13 @@ pub struct HitInfo {
     pub p: Vec3,
     pub n: Vec3,
     pub m: Arc<dyn Material>,
+    pub u: f64,
+    pub v: f64,
 }
 
 impl HitInfo {
-    pub fn new(t: f64, p: Vec3, n: Vec3, m: Arc<dyn Material>) -> Self {
-        Self { t, p, n, m }
+    pub fn new(t: f64, p: Vec3, n: Vec3, m: Arc<dyn Material>, u: f64, v: f64) -> Self {
+        Self { t, p, n, m, u, v }
     }
 }
 
@@ -136,7 +138,9 @@ impl Shape for Sphere {
                     p,
                     (p - self.center) / self.radius,
                     Arc::clone(&self.material),
-                ));
+                    0.0,
+                    0.0,
+                )); //暫定
             }
             let temp = (-b + root) / (2.0 * a);
             if temp < t1 && temp > t0 {
@@ -146,7 +150,9 @@ impl Shape for Sphere {
                     p,
                     (p - self.center) / self.radius,
                     Arc::clone(&self.material),
-                ));
+                    0.0,
+                    0.0,
+                )); //暫定
             }
         }
         None
@@ -187,7 +193,7 @@ impl Shape for ShapeList {
         hit_info
     }
     fn bounding_box(&self) -> Option<AABB> {
-        match self.objects.first() {
+        match &self.objects.first() {
             Some(first) => {
                 match first.bounding_box() {
                     Some(bbox) => self.objects.iter().skip(1).try_fold(bbox, |acc, shape| {

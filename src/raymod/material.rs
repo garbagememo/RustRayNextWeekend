@@ -1,7 +1,47 @@
 use crate::raymod::*;
-
-use std::f64::consts::*;
 use std::sync::Arc;
+
+pub trait Texture: Sync + Send {
+    fn value(&self, u: f64, v: f64, p: Vec3) -> Color;
+}
+
+pub struct ColorTexture {
+    color: Vec3,
+}
+impl ColorTexture {
+    pub const fn new(color: Vec3) -> Self {
+        Self { color }
+    }
+}
+
+impl Texture for ColorTexture {
+    fn value(&self, _u: f64, _v: f64, _p: Vec3) -> Color {
+        self.color
+    }
+}
+
+pub struct CheckerTexture {
+    odd: Box<dyn Texture>,
+    even: Box<dyn Texture>,
+    freq: f64,
+}
+impl CheckerTexture {
+    pub fn new(odd: Box<dyn Texture>, even: Box<dyn Texture>, freq: f64) -> Self {
+        Self { odd, even, freq }
+    }
+}
+
+impl Texture for CheckerTexture {
+    fn value(&self, u: f64, v: f64, p: Vec3) -> Color {
+        let sines = (p.x * self.freq).sin() * (p.y * self.freq).sin() * (p.z * self.freq).sin();
+		//*ではなく+にすると斑点模様になる
+        if sines < 0.0 {
+            self.odd.value(u, v, p)
+        } else {
+            self.even.value(u, v, p)
+        }
+    }
+}
 
 pub struct ScatterInfo {
     pub ray: Ray,
@@ -18,10 +58,10 @@ impl ScatterInfo {
     }
 }
 pub struct Lambertian {
-    pub albedo: Vec3,
+    pub albedo: Box<dyn Texture>,
 }
 impl Lambertian {
-    pub fn new(albedo: Vec3) -> Self {
+    pub fn new(albedo: Box<dyn Texture>) -> Self {
         Self { albedo }
     }
 }
@@ -29,20 +69,18 @@ impl Lambertian {
 impl Material for Lambertian {
     fn scatter(&self, _ray: &Ray, hit: &HitInfo) -> Option<ScatterInfo> {
         let target = hit.p + hit.n + Vec3::random_hemisphere();
-        Some(ScatterInfo::new(
-            Ray::new(hit.p, target - hit.p),
-            self.albedo,
-        ))
+        let albedo = self.albedo.value(hit.u, hit.v, hit.p);
+        Some(ScatterInfo::new(Ray::new(hit.p, target - hit.p), albedo))
     }
 }
 
 pub struct Metal {
-    pub albedo: Vec3,
+    pub albedo: Box<dyn Texture>,
     pub fuzz: f64,
 }
 
 impl Metal {
-    pub fn new(albedo: Vec3, fuzz: f64) -> Self {
+    pub fn new(albedo: Box<dyn Texture>, fuzz: f64) -> Self {
         Self { albedo, fuzz }
     }
 }
@@ -51,7 +89,8 @@ impl Material for Metal {
         let mut reflected = _ray.d.norm().reflect(hit.n);
         reflected = reflected + Vec3::random_hemisphere() * self.fuzz;
         if reflected.dot(&hit.n) > 0.0 {
-            Some(ScatterInfo::new(Ray::new(hit.p, reflected), self.albedo))
+            let albedo = self.albedo.value(hit.u, hit.v, hit.p);
+            Some(ScatterInfo::new(Ray::new(hit.p, reflected), albedo))
         } else {
             None
         }

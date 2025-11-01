@@ -24,7 +24,7 @@ pub fn parameters() -> Args {
     // キーワード引数を指定
     let mut opts = Options::new();
     opts.optopt("s", "samples", "sampling number", "1..etc");
-    opts.optopt("w", "width", "screen width", "ex)384");
+    opts.optopt("w", "width", "screen width", "ex)768");
     opts.optopt("m", "model", "model number", "0..9");
     opts.optopt("o", "output", "set output file name", "[FILE]");
     opts.optflag("h", "help", "print this help");
@@ -43,11 +43,8 @@ pub fn parameters() -> Args {
     //    if matches.free.is_empty() {print_usage(&args[0], &opts); }
 
     // キーワード引数の取得
-    let s: usize = matches
-        .opt_str("s")
-        .unwrap_or("32".to_string())
-        .parse()
-        .unwrap();
+    let sampstr = matches.opt_str("s").unwrap_or("32".to_string());
+    let s: usize = sampstr.parse().unwrap();
     let w = matches
         .opt_str("w")
         .unwrap_or("768".to_string())
