@@ -15,7 +15,7 @@ pub struct BVH {
 
 impl BVH {
     pub fn new(mut Shape: Vec<Box<dyn Shape>>) -> Self {
-        fn box_compare(axis: usize,) -> impl FnMut(&Box<dyn Shape>, &Box<dyn Shape>) -> Ordering {
+        fn box_compare(axis: usize) -> impl FnMut(&Box<dyn Shape>, &Box<dyn Shape>) -> Ordering {
             move |a, b| {
                 let a_bbox = a.bounding_box();
                 let b_bbox = b.bounding_box();
@@ -31,7 +31,13 @@ impl BVH {
 
         let axis_random = random();
         let mut axis;
-        if axis_random<0.33 {axis = 0; } else if axis_random<0.66 { axis = 1; } else { axis = 2; };
+        if axis_random < 0.33 {
+            axis = 0;
+        } else if axis_random < 0.66 {
+            axis = 1;
+        } else {
+            axis = 2;
+        };
 
         Shape.sort_unstable_by(box_compare(axis));
         let len = Shape.len();
@@ -49,8 +55,8 @@ impl BVH {
                 }
             }
             _ => {
-                let right = BVH::new(Shape.drain(len / 2..).collect(), );
-                let left = BVH::new(Shape, );
+                let right = BVH::new(Shape.drain(len / 2..).collect());
+                let left = BVH::new(Shape);
                 let bbox = surrounding_box(&left.bbox, &right.bbox);
                 BVH {
                     tree: BVHNode::Branch {
@@ -77,16 +83,12 @@ impl Shape for BVH {
                     t_max = l.t
                 };
                 let right = right.hit(&ray, t_min, t_max);
-                if right.is_some() {
-                    right
-                } else {
-                    left
-                }
+                if right.is_some() { right } else { left }
             }
         }
     }
 
-    fn bounding_box(&self,) -> Option<AABB> {
+    fn bounding_box(&self) -> Option<AABB> {
         Some(self.bbox.clone())
     }
 }

@@ -1,18 +1,16 @@
-﻿
-use std::ops::{Add, Sub, Mul, Div,Rem};
-use std::ops::{Index, IndexMut};
 #[allow(unused_imports)]
 use rand::prelude::*;
+use rayon::prelude::*;
 use std::fs;
 use std::io::Write;
-use rayon::prelude::*;
-
+use std::ops::{Add, Div, Mul, Rem, Sub};
+use std::ops::{Index, IndexMut};
 
 pub fn random() -> f64 {
     rand::random::<f64>()
 }
 
-pub fn random_range(a:f64,b:f64) -> f64{
+pub fn random_range(a: f64, b: f64) -> f64 {
     rand::random_range(a..b)
 }
 
@@ -28,7 +26,7 @@ pub type Color = Vec3;
 #[allow(dead_code)]
 impl Vec3 {
     pub fn new(x: f64, y: f64, z: f64) -> Vec3 {
-        Vec3 {x, y, z}
+        Vec3 { x, y, z }
     }
     pub fn zero() -> Vec3 {
         Vec3::new(0.0, 0.0, 0.0)
@@ -46,44 +44,44 @@ impl Vec3 {
     pub fn dot(&self, b: &Vec3) -> f64 {
         return self.x * b.x + self.y * b.y + self.z * b.z;
     }
-    pub fn length(&self)->f64{
-        return self.x*self.x+self.y*self.y+self.z*self.z;
+    pub fn length(&self) -> f64 {
+        return self.x * self.x + self.y * self.y + self.z * self.z;
     }
-    pub fn random() -> Vec3{
-        return Vec3::new(random(),random(),random())
+    pub fn random() -> Vec3 {
+        return Vec3::new(random(), random(), random());
     }
-    pub fn random_full() ->Vec3 {
+    pub fn random_full() -> Vec3 {
         let x = random();
-        return Vec3::new(x,x,x)
+        return Vec3::new(x, x, x);
     }
-    pub fn vec3_random_range(a:f64,b:f64) ->Vec3 {
-        return Vec3::new(random_range(a,b),random_range(a,b),random_range(a,b))
+    pub fn vec3_random_range(a: f64, b: f64) -> Vec3 {
+        return Vec3::new(random_range(a, b), random_range(a, b), random_range(a, b));
     }
     pub fn random_hemisphere() -> Vec3 {
         loop {
-            let point =Vec3::vec3_random_range(-1.0,1.0);
-            if point.length()<1.0 {
+            let point = Vec3::vec3_random_range(-1.0, 1.0);
+            if point.length() < 1.0 {
                 return point;
             }
         }
     }
     pub fn random_in_unit_disk() -> Vec3 {
-    loop {
-        let p = Vec3::new(random_range(-1.0, 1.0), random_range(-1.0, 1.0), 0.0);
-        if p.length() < 1.0 {
-            return p;
+        loop {
+            let p = Vec3::new(random_range(-1.0, 1.0), random_range(-1.0, 1.0), 0.0);
+            if p.length() < 1.0 {
+                return p;
+            }
         }
     }
-}
-    pub fn reflect(&self,normal:Vec3) -> Vec3 {
-        *self - normal*2.0*self.dot(&normal)
+    pub fn reflect(&self, normal: Vec3) -> Vec3 {
+        *self - normal * 2.0 * self.dot(&normal)
     }
     pub fn refract(&self, normal: Self, ni_over_nt: f64) -> Option<Vec3> {
         let uv = self.norm();
         let dt = uv.dot(&normal);
-        let d = 1.0 - ni_over_nt*ni_over_nt * (1.0 - dt*dt);
+        let d = 1.0 - ni_over_nt * ni_over_nt * (1.0 - dt * dt);
         if d > 0.0 {
-            Some((uv - normal * dt)*(-1.0*ni_over_nt) - normal * d.sqrt())
+            Some((uv - normal * dt) * (-1.0 * ni_over_nt) - normal * d.sqrt())
         } else {
             None
         }
@@ -124,7 +122,7 @@ impl Rem for Vec3 {
         Vec3::new(
             self.y * rhs.z - self.z * rhs.y,
             self.z * rhs.x - self.x * rhs.z,
-            self.x * rhs.y - self.y * rhs.x
+            self.x * rhs.y - self.y * rhs.x,
         )
     }
 }
@@ -162,10 +160,6 @@ impl IndexMut<usize> for Vec3 {
     }
 }
 
-
-
-
-
 fn clamp(x: f64) -> f64 {
     if x < 0.0 {
         0.0
@@ -176,37 +170,38 @@ fn clamp(x: f64) -> f64 {
     }
 }
 
-
 fn to_int(x: f64) -> u8 {
     (clamp(x).powf(1.0 / 2.2) * 255.0 + 0.5) as u8
 }
-
 
 #[allow(dead_code)]
 fn save_ppm_file(filename: &str, image: Vec<Color>, width: usize, height: usize) {
     let mut f = fs::File::create(filename).unwrap();
     writeln!(f, "P3\n{} {}\n{}", width, height, 255).unwrap();
     for i in 0..(width * (height)) {
-        write!(f, "{} {} {} ", to_int(image[i as usize].x), to_int(image[i as usize].y), to_int(image[i as usize].z)).unwrap();
+        write!(
+            f,
+            "{} {} {} ",
+            to_int(image[i as usize].x),
+            to_int(image[i as usize].y),
+            to_int(image[i as usize].z)
+        )
+        .unwrap();
     }
 }
 
-pub fn save_png_file(filename:&str, out_image: Vec<Color>, width: usize, height: usize) {
-
-
+pub fn save_png_file(filename: &str, out_image: Vec<Color>, width: usize, height: usize) {
     let mut imgbuf = image::ImageBuffer::new(width as u32, height as u32);
 
     // Iterate over the coordinates and pixels of the image
-	for (x, y, pixel) in imgbuf.enumerate_pixels_mut() {
-		let i:usize=(x as usize)+(y as usize)*width;
-		let r = to_int(out_image[i].x );
+    for (x, y, pixel) in imgbuf.enumerate_pixels_mut() {
+        let i: usize = (x as usize) + (y as usize) * width;
+        let r = to_int(out_image[i].x);
         let g = to_int(out_image[i].y);
-        let b = to_int(out_image[i].z );
-		*pixel = image::Rgb([r, g, b]);
-	}
+        let b = to_int(out_image[i].z);
+        *pixel = image::Rgb([r, g, b]);
+    }
 
     // Save the image as “fractal.png”, the format is deduced from the path
-	imgbuf.save(filename).unwrap();
+    imgbuf.save(filename).unwrap();
 }
-
-
