@@ -32,6 +32,9 @@ impl ShapeList {
             1000.0,
             Arc::new(Lambertian::new(Vec3::new(0.5, 0.5, 0.5))),
         )));
+
+        let mut box_list1: Vec<Box<dyn Shape>> = Vec::new();
+
         for a in -11..11 {
             for b in -11..11 {
                 let choose_mat=random();
@@ -40,7 +43,7 @@ impl ShapeList {
                     if choose_mat < 0.8 {
                         // diffuse
                         let albedo = Vec3::random().mult(Vec3::random() );
-                        self.push(Box::new(Sphere::new(
+                        box_list1.push(Box::new(Sphere::new(
                             center,
                             0.2,
                             Arc::new(Lambertian::new(albedo)),
@@ -49,14 +52,14 @@ impl ShapeList {
                         // Metal
                         let fuzz= random_range(0.0,0.5);
                         let albedo=Vec3::vec3_random_range(0.5,1.0);
-                        self.push(Box::new(Sphere::new(
+                        box_list1.push(Box::new(Sphere::new(
                             center,
                             0.2,
                             Arc::new(Metal::new(albedo,fuzz)),
                         )));
                     } else {
                         // glass
-                        self.push(Box::new(Sphere::new(
+                        box_list1.push(Box::new(Sphere::new(
                             center,
                             0.2,
                             Arc::new(Dielectric::new(1.5)),
@@ -65,6 +68,8 @@ impl ShapeList {
                 }
             }
         }
+        self.push(Box::new(BVH::new(box_list1)) );
+    
         self.push(Box::new(Sphere::new(
             Vec3::new(0.0,1.0,0.0),
             1.0,
