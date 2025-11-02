@@ -6,23 +6,21 @@ use rayon::prelude::*;
 use std::io::Write;
 use std::sync::Arc;
 
-fn ray_color(r: &Ray, world: &dyn Shape, depth: i64) -> Vec3 {
+fn ray_color(r: &Ray, world: &dyn Shape, depth: i64 , background:Vec3) -> Vec3 {
     if depth <= 0 {
         return Vec3::new(0.0, 0.0, 0.0);
     }
     let hit_info = world.hit(&r, EPS, f64::MAX);
     if let Some(hit) = hit_info {
+        let emitted = hit.m.emitted(&r, &hit);
         let scatter_info = hit.m.scatter(r, &hit);
         if let Some(scatter) = scatter_info {
-            scatter
-                .albedo
-                .mult(ray_color(&scatter.ray, world, depth - 1))
+            emitted+scatter.albedo.mult(ray_color(&scatter.ray, world, depth - 1,background))
         } else {
-            return Vec3::new(0.0, 0.0, 0.0);
+            return emitted;
         }
     } else {
-        let t = 0.5 * (r.d.norm().y + 1.0);
-        Vec3::new(1.0, 1.0, 1.0) * (1.0 - t) + Vec3::new(0.5, 0.7, 1.0) * t
+        return background;
     }
 }
 
@@ -42,7 +40,8 @@ fn main() {
     let cam: Camera;
     match args.m {
         0 => {
-            cam = world.simple_scene();
+            //cam = world.simple_scene();
+            cam = world.emitte_scene();
         }
         1 => {
             cam = world.random_scene();
@@ -65,7 +64,7 @@ fn main() {
                         let u = (x as f64 + (_sx as f64 + random()) / 4.0) / (w as f64);
                         let v = (y as f64 + (_sy as f64 + random()) / 4.0) / (h as f64);
                         let ray = cam.get_ray(u, v);
-                        r = r + ray_color(&ray, &world, MAX_DEPTH) / (samps as f64) / 4.0;
+                        r = r + ray_color(&ray, &world, MAX_DEPTH,Vec3::new(0.1,0.1,0.1) ) / (samps as f64) / 4.0;
                     }
                 }
             }
