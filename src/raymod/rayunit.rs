@@ -24,66 +24,6 @@ pub enum Refl {
     Spec,
     Refr,
 }
-
-//左上が原点なPNGフォーマット対応
-pub struct Camera {
-    pub origin: Vec3,
-    pub upper_left_corner: Vec3,
-    pub horizontal: Vec3,
-    pub vertical: Vec3,
-    pub lens_radius: f64,
-    pub u: Vec3,
-    pub v: Vec3,
-    pub w: Vec3,
-}
-
-impl Camera {
-    pub fn new(
-        lookfrom: Vec3,
-        lookat: Vec3,
-        vup: Vec3,
-        vfov: f64,
-        aspect_ratio: f64,
-        aperture: f64,
-        focus_dist: f64,
-    ) -> Camera {
-        let theta = vfov.to_radians();
-        let h = (theta / 2.0).tan();
-        let viewport_height = 2.0 * h;
-        let viewport_width = aspect_ratio * viewport_height;
-
-        let w = (lookfrom - lookat).norm();
-        let u = (vup % w).norm();
-        let v = w % u;
-
-        let origin = lookfrom;
-        let horizontal = u * focus_dist * viewport_width;
-        let vertical = v * focus_dist * viewport_height;
-        let upper_left_corner = origin - horizontal / 2.0 + vertical / 2.0 - w * focus_dist;
-        let lens_radius = aperture / 2.0;
-
-        Camera {
-            origin,
-            upper_left_corner,
-            horizontal,
-            vertical,
-            lens_radius,
-            u,
-            v,
-            w,
-        }
-    }
-
-    pub fn get_ray(&self, s: f64, t: f64) -> Ray {
-        let rd = Vec3::random_in_unit_disk() * self.lens_radius;
-        let offset = self.u * rd.x + self.v * rd.y;
-        Ray::new(
-            self.origin + offset,
-            self.upper_left_corner + self.horizontal * s - self.vertical * t - self.origin - offset,
-        )
-    }
-}
-
 pub struct HitInfo {
     pub t: f64,
     pub p: Vec3,
@@ -118,6 +58,11 @@ impl Sphere {
             material,
         }
     }
+    fn uv(p: Vec3) -> (f64, f64) {
+        let phi = p.z.atan2(p.x);
+        let theta = p.y.asin();
+        (1.0 - (phi + PI) / (2.0 * PI), (theta + PI / 2.0) / PI)
+    }
 }
 
 impl Shape for Sphere {
@@ -133,26 +78,16 @@ impl Shape for Sphere {
             let temp = (-b - root) / (2.0 * a);
             if temp < t1 && temp > t0 {
                 let p = r.at(temp);
-                return Some(HitInfo::new(
-                    temp,
-                    p,
-                    (p - self.center) / self.radius,
-                    Arc::clone(&self.material),
-                    0.0,
-                    0.0,
-                )); //暫定
+                let n = (p - self.center) / self.radius;
+                let (u, v) = Self::uv(n);
+                return Some(HitInfo::new(temp, p, n, Arc::clone(&self.material), u, v));
             }
             let temp = (-b + root) / (2.0 * a);
             if temp < t1 && temp > t0 {
                 let p = r.at(temp);
-                return Some(HitInfo::new(
-                    temp,
-                    p,
-                    (p - self.center) / self.radius,
-                    Arc::clone(&self.material),
-                    0.0,
-                    0.0,
-                )); //暫定
+                let n = (p - self.center) / self.radius;
+                let (u, v) = Self::uv(n);
+                return Some(HitInfo::new(temp, p, n, Arc::clone(&self.material), u, v));
             }
         }
         None

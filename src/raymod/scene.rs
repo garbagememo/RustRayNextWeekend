@@ -1,6 +1,65 @@
 use crate::raymod::*;
 use std::sync::Arc;
 
+//左上が原点なPNGフォーマット対応
+pub struct Camera {
+    pub origin: Vec3,
+    pub upper_left_corner: Vec3,
+    pub horizontal: Vec3,
+    pub vertical: Vec3,
+    pub lens_radius: f64,
+    pub u: Vec3,
+    pub v: Vec3,
+    pub w: Vec3,
+}
+
+impl Camera {
+    pub fn new(
+        lookfrom: Vec3,
+        lookat: Vec3,
+        vup: Vec3,
+        vfov: f64,
+        aspect_ratio: f64,
+        aperture: f64,
+        focus_dist: f64,
+    ) -> Camera {
+        let theta = vfov.to_radians();
+        let h = (theta / 2.0).tan();
+        let viewport_height = 2.0 * h;
+        let viewport_width = aspect_ratio * viewport_height;
+
+        let w = (lookfrom - lookat).norm();
+        let u = (vup % w).norm();
+        let v = w % u;
+
+        let origin = lookfrom;
+        let horizontal = u * focus_dist * viewport_width;
+        let vertical = v * focus_dist * viewport_height;
+        let upper_left_corner = origin - horizontal / 2.0 + vertical / 2.0 - w * focus_dist;
+        let lens_radius = aperture / 2.0;
+
+        Camera {
+            origin,
+            upper_left_corner,
+            horizontal,
+            vertical,
+            lens_radius,
+            u,
+            v,
+            w,
+        }
+    }
+
+    pub fn get_ray(&self, s: f64, t: f64) -> Ray {
+        let rd = Vec3::random_in_unit_disk() * self.lens_radius;
+        let offset = self.u * rd.x + self.v * rd.y;
+        Ray::new(
+            self.origin + offset,
+            self.upper_left_corner + self.horizontal * s - self.vertical * t - self.origin - offset,
+        )
+    }
+}
+
 #[allow(dead_code)]
 impl ShapeList {
     pub fn simple_scene(&mut self) -> Camera {
@@ -47,8 +106,52 @@ impl ShapeList {
         );
     }
 
+    pub fn texture_scene(&mut self) -> Camera {
+        self.push(Box::new(Sphere::new(
+            Vec3::new(0.6, 0.0, -1.0),
+            0.5,
+            Arc::new(Lambertian::new(Box::new(ImageTexture::new(
+                "testimage.jpg",
+            )))),
+        )));
+        self.push(Box::new(Sphere::new(
+            Vec3::new(-0.6, 0.0, -1.0),
+            0.5,
+            Arc::new(Metal::new(
+                Box::new(ColorTexture::new(Vec3::new(0.8, 0.8, 0.8))),
+                0.4,
+            )),
+        )));
+        self.push(Box::new(Sphere::new(
+            Vec3::new(0.0, -100.5, 0.0),
+            100.0,
+            Arc::new(Lambertian::new(Box::new(CheckerTexture::new(
+                Box::new(ColorTexture::new(Vec3::new(0.8, 0.8, 0.0))),
+                Box::new(ColorTexture::new(Vec3::new(0.8, 0.2, 0.0))),
+                10.0,
+            )))),
+        )));
+        // simple_scene用カメラ
+        let lookfrom = Vec3::new(0.0, 1.0, 4.0);
+        let lookat = Vec3::new(0.0, 0.0, -1.0);
+        let vup = Vec3::new(0.0, 1.0, 0.0);
+
+        let dist_to_focus = (lookfrom - lookat).length().sqrt();
+        let aperture = 0.1;
+
+        return Camera::new(
+            lookfrom,
+            lookat,
+            vup,
+            20.0,
+            ASPECT_RATIO,
+            aperture,
+            dist_to_focus,
+        );
+    }
+
     pub fn random_scene(&mut self) -> Camera {
-         self.push(Box::new(Sphere::new(
+        self.push(Box::new(Sphere::new(
             Vec3::new(0.0, -1000.0, 0.0),
             1000.0,
             Arc::new(Lambertian::new(Box::new(ColorTexture::new(Vec3::new(
@@ -72,8 +175,8 @@ impl ShapeList {
                         )));
                     } else if choose_mat < 0.95 {
                         // Metal
-                        let fuzz = random_range(0.0 , 0.5);
-                        let albedo = Vec3::vec3_random_range(0.5 , 1.0);
+                        let fuzz = random_range(0.0, 0.5);
+                        let albedo = Vec3::vec3_random_range(0.5, 1.0);
                         box_list1.push(Box::new(Sphere::new(
                             center,
                             0.2,
@@ -90,8 +193,8 @@ impl ShapeList {
                 }
             }
         }
-        self.push(Box::new(BVH::new(box_list1)) );
-    
+        self.push(Box::new(BVH::new(box_list1)));
+
         self.push(Box::new(Sphere::new(
             Vec3::new(0.0, 1.0, 0.0),
             1.0,

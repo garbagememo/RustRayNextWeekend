@@ -9,10 +9,9 @@ pub fn random() -> f64 {
     rand::random::<f64>()
 }
 
-pub fn random_range(a:f64,b:f64) -> f64{
-    random()*(b-a)+a
+pub fn random_range(a: f64, b: f64) -> f64 {
+    random() * (b - a) + a
 }
-
 
 #[derive(Copy, Clone, Debug)]
 pub struct Vec3 {
@@ -86,6 +85,9 @@ impl Vec3 {
         } else {
             None
         }
+    }
+    pub fn from_rgb(r: u8, g: u8, b: u8) -> Self {
+        Self::new(r as f64 / 255.0, g as f64 / 255.0, b as f64 / 255.0)
     }
 }
 

@@ -43,6 +43,53 @@ impl Texture for CheckerTexture {
     }
 }
 
+pub struct ImageTexture {
+    pixels: Vec<Vec3>,
+    width: usize,
+    height: usize,
+}
+
+impl ImageTexture {
+    pub fn new(path: &str) -> Self {
+        let rgbimg = image::open(path).unwrap().to_rgb8();
+        let (w, h) = rgbimg.dimensions();
+        let mut image = vec![Vec3::zero(); (w * h) as usize];
+        for (i, (_, _, pixel)) in image.iter_mut().zip(rgbimg.enumerate_pixels()) {
+            *i = Color::from_rgb(pixel[0], pixel[1], pixel[2]);
+        }
+        Self {
+            pixels: image,
+            width: w as usize,
+            height: h as usize,
+        }
+    }
+
+    pub fn sample(&self, u: i64, v: i64) -> Color {
+        let tu = if u < 0 {
+            0
+        } else if u as usize >= self.width {
+            self.width - 1
+        } else {
+            u as usize
+        };
+        let tv = if v < 0 {
+            0
+        } else if v as usize >= self.height {
+            self.height - 1
+        } else {
+            v as usize
+        };
+        self.pixels[tu + self.width * tv]
+    }
+}
+impl Texture for ImageTexture {
+    fn value(&self, u: f64, v: f64, _p: Vec3) -> Color {
+        let x = (u * self.width as f64) as i64;
+        let y = ((1.0 - v) * self.height as f64) as i64;
+        self.sample(x, y)
+    }
+}
+
 pub struct ScatterInfo {
     pub ray: Ray,
     pub albedo: Color,
