@@ -39,11 +39,20 @@ fn main() {
     let MAX_DEPTH: i64 = 32;
 
     let mut world = ShapeList::new();
-    let mut cam:Camera;
+    let cam: Camera;
     match args.m {
-        0 => { cam = world.simple_scene();}
-        1 => { cam = world.random_scene();}
-        _ => { cam = world.simple_scene();}
+        0 => {
+            cam = world.simple_scene();
+        }
+        1 => {
+            cam = world.random_scene();
+        }
+		2 =>{
+			cam = world.texture_scene();
+		}
+        _ => {
+            cam = world.simple_scene();
+        }
     }
 
     let bands: Vec<(usize, &mut [Color])> = image.chunks_mut(w as usize).enumerate().collect();
