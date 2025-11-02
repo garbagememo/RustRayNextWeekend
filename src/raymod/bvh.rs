@@ -30,7 +30,8 @@ impl BVH {
         }
 
         let axis_random = random();
-        let if axis_random<0.33 {axis = 0 } else if axis_random<0.66 { axis = 1 } else { axis = 2 };
+        let axis:usize;
+        if axis_random<0.33 {axis = 0 } else if axis_random<0.66 { axis = 1 } else { axis = 2 };
 
         Shape.sort_unstable_by(box_compare(axis));
         let len = Shape.len();
@@ -64,7 +65,7 @@ impl BVH {
 }
 
 impl Shape for BVH {
-    fn hit(&self, ray: &Ray, t_min: f64, mut t_max: f64) -> Option<HitRecord> {
+    fn hit(&self, ray: &Ray, t_min: f64, mut t_max: f64) -> Option<HitInfo> {
         if !self.bbox.hit(&ray, t_min, t_max) {
             return None;
         }

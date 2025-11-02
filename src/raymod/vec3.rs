@@ -1,4 +1,3 @@
-#[allow(unused_imports)]
 use rand::prelude::*;
 use rayon::prelude::*;
 use std::fs;
@@ -10,9 +9,10 @@ pub fn random() -> f64 {
     rand::random::<f64>()
 }
 
-pub fn random_range(a: f64, b: f64) -> f64 {
-    rand::random_range(a..b)
+pub fn random_range(a:f64,b:f64) -> f64{
+    random()*(b-a)+a
 }
+
 
 #[derive(Copy, Clone, Debug)]
 pub struct Vec3 {

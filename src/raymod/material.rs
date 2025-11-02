@@ -34,7 +34,7 @@ impl CheckerTexture {
 impl Texture for CheckerTexture {
     fn value(&self, u: f64, v: f64, p: Vec3) -> Color {
         let sines = (p.x * self.freq).sin() * (p.y * self.freq).sin() * (p.z * self.freq).sin();
-		//*ではなく+にすると斑点模様になる
+        //*ではなく+にすると斑点模様になる
         if sines < 0.0 {
             self.odd.value(u, v, p)
         } else {
