@@ -1,5 +1,5 @@
 [package]
-name ="RustRay1Weekend"
+name ="RustRayNextWeekend"
 version = "0.1.0"
 edition = "2024"
 
@@ -8,3 +8,4 @@ getopts = "0.2.21"
 image = "0.25.5"
 rand = "*"
 rayon = "*"
+rustfmt = "0.10.0"
