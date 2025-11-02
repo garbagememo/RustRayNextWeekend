@@ -1,6 +1,12 @@
 use crate::raymod::*;
 use std::sync::Arc;
 
+
+pub trait Material: Sync + Send {
+    fn scatter(&self, ray: &Ray, hit: &HitInfo) -> Option<ScatterInfo>;
+    fn emitted(&self, ray: &Ray, hit: &HitInfo) -> Color{ Color::zero() }
+}
+
 pub trait Texture: Sync + Send {
     fn value(&self, u: f64, v: f64, p: Vec3) -> Color;
 }
@@ -90,13 +96,28 @@ impl Texture for ImageTexture {
     }
 }
 
+pub struct DiffuseLight {
+    pub emit: Box<dyn Texture>,
+}
+impl DiffuseLight {
+    pub fn new(emit: Box<dyn Texture>) -> Self {
+        Self { emit }
+    }
+}
+
+impl Material for DiffuseLight {
+    fn scatter(&self, _ray: &Ray, _hit: &HitInfo) -> Option<ScatterInfo> {
+        None
+    }
+    fn emitted(&self, _ray: &Ray, hit: &HitInfo) -> Color {
+        self.emit.value(hit.u, hit.v, hit.p)
+    }
+}
+
+
 pub struct ScatterInfo {
     pub ray: Ray,
     pub albedo: Color,
-}
-
-pub trait Material: Sync + Send {
-    fn scatter(&self, ray: &Ray, hit: &HitInfo) -> Option<ScatterInfo>;
 }
 
 impl ScatterInfo {

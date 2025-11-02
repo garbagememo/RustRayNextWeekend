@@ -2,7 +2,7 @@ use rand::prelude::*;
 use rayon::prelude::*;
 use std::fs;
 use std::io::Write;
-use std::ops::{Add, Div, Mul, Rem, Sub};
+use std::ops::{Add, Div, Mul, Rem, Sub, Neg};
 use std::ops::{Index, IndexMut};
 
 pub fn random() -> f64 {
@@ -88,6 +88,13 @@ impl Vec3 {
     }
     pub fn from_rgb(r: u8, g: u8, b: u8) -> Self {
         Self::new(r as f64 / 255.0, g as f64 / 255.0, b as f64 / 255.0)
+    }
+}
+
+impl Neg for Vec3 {
+    type Output = Self;
+    fn neg(self) -> Self {
+        Vec3::new(-self.x , -self.y , -self.z )
     }
 }
 

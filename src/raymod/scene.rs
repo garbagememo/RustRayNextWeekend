@@ -149,6 +149,40 @@ impl ShapeList {
             dist_to_focus,
         );
     }
+    pub fn emitte_scene(&mut self) -> Camera {
+        self.push(Box::new(Sphere::new(
+            Vec3::new(0.0, 0.0, -1.0),
+            0.5,
+            Arc::new(DiffuseLight::new(
+                Box::new(ColorTexture::new(Vec3::new(1.0,1.0,1.0) )))),
+        )));
+        self.push(Box::new(Sphere::new(
+            Vec3::new(0.0, -100.5, 0.0),
+            100.0,
+            Arc::new(Lambertian::new(Box::new(CheckerTexture::new(
+                Box::new(ColorTexture::new(Vec3::new(0.8, 0.8, 0.0))),
+                Box::new(ColorTexture::new(Vec3::new(0.8, 0.2, 0.0))),
+                10.0,
+            )))),
+        )));
+        // simple_scene用カメラ
+        let lookfrom = Vec3::new(0.0, 1.0, 4.0);
+        let lookat = Vec3::new(0.0, 0.0, -1.0);
+        let vup = Vec3::new(0.0, 1.0, 0.0);
+
+        let dist_to_focus = (lookfrom - lookat).length().sqrt();
+        let aperture = 0.1;
+
+        return Camera::new(
+            lookfrom,
+            lookat,
+            vup,
+            20.0,
+            ASPECT_RATIO,
+            aperture,
+            dist_to_focus,
+        );
+    }
 
     pub fn random_scene(&mut self) -> Camera {
         self.push(Box::new(Sphere::new(
