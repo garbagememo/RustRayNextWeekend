@@ -185,12 +185,12 @@ impl Material for Dielectric {
         let (outward_normal, ni_over_nt, cosine) = {
             let dot = ray.d.dot(&hit.n);
             if dot > 0.0 {
-                (hit.n * -1.0, self.ri, self.ri * dot / ray.d.length().sqrt())
+                (-hit.n , self.ri, self.ri * dot / ray.d.length().sqrt())
             } else {
                 (
                     hit.n,
                     1.0 / self.ri,
-                    self.ri * dot / ray.d.length().sqrt() * -1.0,
+                    -self.ri * dot / ray.d.length().sqrt() ,
                 )
             }
         };
