@@ -1,10 +1,11 @@
 use crate::raymod::*;
 use std::sync::Arc;
 
-
 pub trait Material: Sync + Send {
     fn scatter(&self, ray: &Ray, hit: &HitInfo) -> Option<ScatterInfo>;
-    fn emitted(&self, ray: &Ray, hit: &HitInfo) -> Color{ Color::zero() }
+    fn emitted(&self, ray: &Ray, hit: &HitInfo) -> Color {
+        Color::zero()
+    }
 }
 
 pub trait Texture: Sync + Send {
@@ -113,7 +114,6 @@ impl Material for DiffuseLight {
         self.emit.value(hit.u, hit.v, hit.p)
     }
 }
-
 
 pub struct ScatterInfo {
     pub ray: Ray,

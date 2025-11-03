@@ -2,7 +2,7 @@ use rand::prelude::*;
 use rayon::prelude::*;
 use std::fs;
 use std::io::Write;
-use std::ops::{Add, Div, Mul, Rem, Sub, Neg};
+use std::ops::{Add, Div, Mul, Neg, Rem, Sub};
 use std::ops::{Index, IndexMut};
 
 pub fn random() -> f64 {
@@ -31,6 +31,16 @@ impl Vec3 {
     pub fn zero() -> Vec3 {
         Vec3::new(0.0, 0.0, 0.0)
     }
+    pub fn xaxis() -> Vec3 {
+        Vec3::new(1.0, 0.0, 0.0)
+    }
+    pub fn yaxis() -> Vec3 {
+        Vec3::new(0.0, 1.0, 0.0)
+    }
+    pub fn zaxis() -> Vec3 {
+        Vec3::new(0.0, 0.0, 1.0)
+    }
+
     pub fn mult(&self, b: Vec3) -> Vec3 {
         Vec3::new(self.x * b.x, self.y * b.y, self.z * b.z)
     }
@@ -94,7 +104,7 @@ impl Vec3 {
 impl Neg for Vec3 {
     type Output = Self;
     fn neg(self) -> Self {
-        Vec3::new(-self.x , -self.y , -self.z )
+        Vec3::new(-self.x, -self.y, -self.z)
     }
 }
 

@@ -18,12 +18,6 @@ impl Ray {
     }
 }
 
-#[allow(dead_code)]
-pub enum Refl {
-    Diff,
-    Spec,
-    Refr,
-}
 pub struct HitInfo {
     pub t: f64,
     pub p: Vec3,
@@ -96,6 +90,89 @@ impl Shape for Sphere {
         let radius = Vec3::new(self.radius, self.radius, self.radius);
         let min = self.center - radius;
         let max = self.center + radius;
+        Some(AABB { min, max })
+    }
+}
+
+pub enum RectAxisType {
+    XY,
+    XZ,
+    YZ,
+}
+pub struct Rect {
+    pub x0: f64,
+    pub x1: f64,
+    pub y0: f64,
+    pub y1: f64,
+    pub k: f64,
+    pub axis: RectAxisType,
+    pub material: Arc<dyn Material>,
+}
+
+impl Rect {
+    pub fn new(_x0: f64,_x1: f64,_y0: f64,_y1: f64, k: f64,
+               axis: RectAxisType,material: Arc<dyn Material>,
+    ) -> Self {
+	let x0 = _x0.min(_x1);let x1 = _x1.max(_x0);
+	let y0 = _y0.min(_y1);let y1 = _y1.max(_y0);
+        Self {x0,x1,y0, y1,k,axis, material,}
+    }
+}
+
+impl Shape for Rect {
+    fn hit(&self, ray: &Ray, t0: f64, t1: f64) -> Option<HitInfo> {
+        let mut origin = ray.o;
+        let mut direction = ray.d;
+        let mut axis = Vec3::zaxis();
+        match self.axis {
+            RectAxisType::XY => {}
+            RectAxisType::XZ => {
+                origin = Vec3::new(origin.x, origin.z, origin.y);
+                direction = Vec3::new(direction.x, direction.z, direction.y);
+                axis = Vec3::yaxis();
+            }
+            RectAxisType::YZ => {
+                origin = Vec3::new(origin.y, origin.z, origin.x);
+                direction = Vec3::new(direction.y, direction.z, direction.x);
+                axis = Vec3::xaxis();
+            }
+        }
+        let t = (self.k - origin.z) / direction.z;
+        if t < t0 || t > t1 {
+            return None;
+        }
+        let x = origin.x + t * direction.x;
+        let y = origin.y + t * direction.y;
+        if x < self.x0 || x > self.x1 || y < self.y0 || y > self.y1 {
+            return None;
+        }
+        Some(HitInfo::new(
+            t,
+            ray.at(t),
+            axis,
+            Arc::clone(&self.material),
+            (x - self.x0) / (self.x1 - self.x0),
+            (y - self.y0) / (self.y1 - self.y0),
+        ))
+    }
+
+    fn bounding_box(&self) -> Option<AABB> {
+	let min:Vec3;
+	let max:Vec3;
+	match self.axis {
+            RectAxisType::XY => {
+		min = Vec3::new(self.x0, self.y0, self.k - EPS10);
+		max = Vec3::new(self.x1, self.y1, self.k + EPS10);
+	    }
+	    RectAxisType::XZ =>{
+		min = Vec3::new(self.x0, self.k - EPS10, self.y0);
+		max = Vec3::new(self.x1, self.k + EPS10, self.y1);
+            }
+	    RectAxisType::YZ => {
+		min = Vec3::new(self.k - EPS10, self.x0, self.y0);
+		max = Vec3::new(self.k + EPS10, self.x1, self.y1);
+            }
+	}
         Some(AABB { min, max })
     }
 }
