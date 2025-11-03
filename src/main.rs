@@ -6,7 +6,7 @@ use rayon::prelude::*;
 use std::io::Write;
 use std::sync::Arc;
 
-fn ray_color(r: &Ray, world: &dyn Shape, depth: i64 , background:Vec3) -> Vec3 {
+fn ray_color(r: &Ray, world: &dyn Shape, depth: i64, background: Vec3) -> Vec3 {
     if depth <= 0 {
         return Vec3::new(0.0, 0.0, 0.0);
     }
@@ -15,7 +15,10 @@ fn ray_color(r: &Ray, world: &dyn Shape, depth: i64 , background:Vec3) -> Vec3 {
         let emitted = hit.m.emitted(&r, &hit);
         let scatter_info = hit.m.scatter(r, &hit);
         if let Some(scatter) = scatter_info {
-            emitted+scatter.albedo.mult(ray_color(&scatter.ray, world, depth - 1,background))
+            emitted
+                + scatter
+                    .albedo
+                    .mult(ray_color(&scatter.ray, world, depth - 1, background))
         } else {
             return emitted;
         }
@@ -37,18 +40,24 @@ fn main() {
     let MAX_DEPTH: i64 = 32;
 
     let mut world = ShapeList::new();
+    let mut background =Vec3::new(0.7,0.8,1.0);
+    //オリジナルはrayの方向でグラデーションを付けたが引数が増えるので止め
     let cam: Camera;
     match args.m {
         0 => {
             //cam = world.simple_scene();
-            cam = world.emitte_scene();
+	    background=Vec3::new(0.1,0.1,0.1);
+            cam = world.emitte_squre_scene();
         }
         1 => {
             cam = world.random_scene();
         }
-		2 =>{
-			cam = world.texture_scene();
-		}
+        2 => {
+            cam = world.texture_scene();
+        }
+        3 => {
+            cam = world.emitte_scene();
+        }
         _ => {
             cam = world.simple_scene();
         }
@@ -64,7 +73,9 @@ fn main() {
                         let u = (x as f64 + (_sx as f64 + random()) / 4.0) / (w as f64);
                         let v = (y as f64 + (_sy as f64 + random()) / 4.0) / (h as f64);
                         let ray = cam.get_ray(u, v);
-                        r = r + ray_color(&ray, &world, MAX_DEPTH,Vec3::new(0.1,0.1,0.1) ) / (samps as f64) / 4.0;
+                        r = r + ray_color(&ray, &world, MAX_DEPTH, background)
+                            / (samps as f64)
+                            / 4.0;
                     }
                 }
             }
