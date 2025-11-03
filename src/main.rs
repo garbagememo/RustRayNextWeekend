@@ -41,22 +41,32 @@ fn main() {
 
     let mut world = ShapeList::new();
     let mut background =Vec3::new(0.7,0.8,1.0);
-    //オリジナルはrayの方向でグラデーションを付けたが引数が増えるので止め
+    //繧ｪ繝ｪ繧ｸ繝翫Ν縺ｯRay縺ｮ髢｢謨ｰ縺縺後→繧翫≠縺医★螳壽焚縺ｧ
     let cam: Camera;
     match args.m {
         0 => {
-            //cam = world.simple_scene();
-	    background=Vec3::new(0.1,0.1,0.1);
-            cam = world.emitte_squre_scene();
+     	    background=Vec3::new(0.0,0.0,0.0);
+            cam = world.cornellbox_scene();
         }
         1 => {
+            cam = world.simple_scene();
+	    }
+        2 => {
             cam = world.random_scene();
         }
-        2 => {
+        3 => {
             cam = world.texture_scene();
         }
-        3 => {
+        4 => {
             cam = world.emitte_scene();
+        }
+        5 =>{
+     	    background=Vec3::new(0.1,0.1,0.1);
+            cam = world.emitte_squre_scene();
+        }
+        6 => {
+            cam = world.cornellbox_scene();
+            background=Vec3::zero();
         }
         _ => {
             cam = world.simple_scene();
