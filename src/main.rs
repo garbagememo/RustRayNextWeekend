@@ -58,6 +58,7 @@ fn main() {
             cam = world.texture_scene();
         }
         4 => {
+     	    background=Vec3::new(0.1,0.1,0.1);
             cam = world.emitte_scene();
         }
         5 =>{
