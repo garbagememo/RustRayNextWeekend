@@ -146,6 +146,7 @@ impl Shape for Rect {
         if x < self.x0 || x > self.x1 || y < self.y0 || y > self.y1 {
             return None;
         }
+        if ray.d.dot(&axis)>0.0 {axis = -axis};
         Some(HitInfo::new(
             t,
             ray.at(t),

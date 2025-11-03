@@ -226,6 +226,84 @@ impl ShapeList {
         );
     }
 
+    pub fn cornellbox_scene(&mut self) -> Camera {
+        let red = Color::new(0.64, 0.05, 0.05);
+        let white = Color::new(0.73,0.73,0.73);
+        let green = Color::new(0.12, 0.45, 0.15);
+
+        //light
+        self.push(Box::new(
+            Rect::new(
+	            213.0, 343.0, 227.0, 332.0, 554.0,RectAxisType::XZ,
+	            Arc::new(
+		            DiffuseLight::new(Box::new(ColorTexture::new(
+		                Vec3::new(15.0, 15.0, 15.0,))))
+	            ),
+            )
+        ));
+        
+        self.push(Box::new(
+            Rect::new(
+                0.0, 555.0, 0.0, 555.0, 555.0,RectAxisType::YZ,
+                Arc::new(
+                    Lambertian::new(Box::new(ColorTexture::new(green)))
+                )
+	        )
+        ));
+        
+        self.push(Box::new(
+            Rect::new(
+                0.0, 555.0, 0.0, 555.0, 0.0,RectAxisType::YZ,
+                Arc::new(
+                    Lambertian::new(Box::new(ColorTexture::new(red)))
+                )
+	        )
+        ));
+        
+        self.push(Box::new(
+            Rect::new(
+                0.0, 555.0, 0.0, 555.0, 555.0,RectAxisType::XZ,
+                Arc::new(
+                    Lambertian::new(Box::new(ColorTexture::new(white)))
+                )
+	        )
+        ));
+        self.push(Box::new(
+            Rect::new(
+                0.0, 555.0, 0.0, 555.0, 0.0,RectAxisType::XZ,
+                Arc::new(
+                    Lambertian::new(Box::new(ColorTexture::new(white)))
+                )
+	        )
+        ));
+        self.push(Box::new(
+            Rect::new(
+                0.0, 555.0, 0.0, 555.0, 555.0,RectAxisType::XY,
+                Arc::new(
+                    Lambertian::new(Box::new(ColorTexture::new(white)))
+                )
+	        )
+        ));
+
+        // simple_scene用カメラ
+        let lookfrom = Vec3::new(278.0, 278.0, -800.0);
+        let lookat = Vec3::new(278.0, 278.0, 0.0);
+        let vup = Vec3::new(0.0, 1.0, 0.0);
+
+        let dist_to_focus = (lookfrom - lookat).length().sqrt();
+        let aperture = 0.1;
+
+        return Camera::new(
+            lookfrom,
+            lookat,
+            vup,
+            40.0,
+            ASPECT_RATIO,
+            aperture,
+            dist_to_focus,
+        );
+    }
+
     pub fn random_scene(&mut self) -> Camera {
         self.push(Box::new(Sphere::new(
             Vec3::new(0.0, -1000.0, 0.0),
