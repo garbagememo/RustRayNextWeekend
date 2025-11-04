@@ -1,4 +1,4 @@
-use crate::raymod::*;
+﻿use crate::raymod::*;
 
 use std::f64::consts::*;
 use std::sync::Arc;
@@ -113,8 +113,8 @@ impl Rect {
     pub fn new(_x0: f64,_x1: f64,_y0: f64,_y1: f64, k: f64,
                axis: RectAxisType,material: Arc<dyn Material>,
     ) -> Self {
-	let x0 = _x0.min(_x1);let x1 = _x1.max(_x0);
-	let y0 = _y0.min(_y1);let y1 = _y1.max(_y0);
+    let x0 = _x0.min(_x1);let x1 = _x1.max(_x0);
+    let y0 = _y0.min(_y1);let y1 = _y1.max(_y0);
         Self {x0,x1,y0, y1,k,axis, material,}
     }
 }
@@ -164,16 +164,46 @@ impl Shape for Rect {
             RectAxisType::XY => {
 		min = Vec3::new(self.x0, self.y0, self.k - EPS10);
 		max = Vec3::new(self.x1, self.y1, self.k + EPS10);
-	    }
-	    RectAxisType::XZ =>{
+            }
+            RectAxisType::XZ =>{
 		min = Vec3::new(self.x0, self.k - EPS10, self.y0);
 		max = Vec3::new(self.x1, self.k + EPS10, self.y1);
             }
-	    RectAxisType::YZ => {
+            RectAxisType::YZ => {
 		min = Vec3::new(self.k - EPS10, self.x0, self.y0);
 		max = Vec3::new(self.k + EPS10, self.x1, self.y1);
             }
 	}
+        Some(AABB { min, max })
+    }
+}
+
+pub struct RectAngle {
+    p0:Vec3,
+    p1:Vec3,
+    shapes:ShapeList,
+}
+
+impl RectAngle {
+    pub fn new(p0: Vec3, p1: Vec3, material: Arc<dyn Material>) -> Self{
+        let mut shapes = ShapeList::new();
+        shapes.push(Box::new(Rect::new(p0.x,p1.x,p0.y,p1.y,p1.z,RectAxisType::XY,Arc::clone(&material)) ));
+        shapes.push(Box::new(Rect::new(p0.x,p1.x,p0.y,p1.y,p0.z,RectAxisType::XY,Arc::clone(&material)) ));
+        shapes.push(Box::new(Rect::new(p0.x,p1.x,p0.z,p1.z,p1.y,RectAxisType::XZ,Arc::clone(&material)) ));
+        shapes.push(Box::new(Rect::new(p0.x,p1.x,p0.z,p1.z,p0.y,RectAxisType::XZ,Arc::clone(&material)) ));
+        shapes.push(Box::new(Rect::new(p0.y,p1.y,p0.z,p1.z,p0.x,RectAxisType::YZ,Arc::clone(&material)) ));
+        shapes.push(Box::new(Rect::new(p0.y,p1.y,p0.z,p1.z,p0.x,RectAxisType::YZ,Arc::clone(&material)) ));
+        Self { p0,p1,shapes}
+    }
+}
+
+impl Shape for RectAngle {
+    fn hit(&self, ray: &Ray, t0: f64, t1: f64) -> Option<HitInfo> {
+        self.shapes.hit(ray, t0, t1)
+    }
+    fn bounding_box(&self) -> Option<AABB> {
+        let min = Vec3::new(self.p0.x.min(self.p1.x),self.p0.y.min(self.p1.y),self.p0.z.min(self.p1.z) );
+        let max = Vec3::new(self.p0.x.min(self.p1.x),self.p0.y.min(self.p1.y),self.p0.z.min(self.p1.z) );
         Some(AABB { min, max })
     }
 }

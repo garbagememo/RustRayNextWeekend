@@ -285,6 +285,24 @@ impl ShapeList {
 	        )
         ));
 
+        self.push(Box::new(
+            RectAngle::new(
+                Vec3::new(130.0, 0.0, 65.0),Vec3::new(295.0, 165.0, 230.0),
+                Arc::new(
+                    Lambertian::new(Box::new(ColorTexture::new(white)))
+                )
+	        )
+        ));
+	
+        self.push(Box::new(
+            RectAngle::new(
+                Vec3::new(265.0, 0.0, 295.0),Vec3::new(430.0, 330.0, 460.0),
+                Arc::new(
+                    Lambertian::new(Box::new(ColorTexture::new(white)))
+                )
+	        )
+        ));
+	
         // simple_scene用カメラ
         let lookfrom = Vec3::new(278.0, 278.0, -800.0);
         let lookat = Vec3::new(278.0, 278.0, 0.0);
