@@ -185,7 +185,9 @@ pub struct RectAngle {
 }
 
 impl RectAngle {
-    pub fn new(p0: Vec3, p1: Vec3, material: Arc<dyn Material>) -> Self{
+    pub fn new(p01: Vec3, p11: Vec3, material: Arc<dyn Material>) -> Self{
+        let mut p0=Vec3::new(p01.x.min(p11.x),p01.y.min(p11.y),p01.z.min(p11.z));
+        let mut p1=Vec3::new(p01.x.max(p11.x),p01.y.max(p11.y),p01.z.max(p11.z));
         let mut shapes = ShapeList::new();
         shapes.push(Box::new(Rect::new(p0.x,p1.x,p0.y,p1.y,p1.z,RectAxisType::XY,Arc::clone(&material)) ));
         shapes.push(Box::new(Rect::new(p0.x,p1.x,p0.y,p1.y,p0.z,RectAxisType::XY,Arc::clone(&material)) ));
