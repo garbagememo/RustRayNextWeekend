@@ -1,4 +1,6 @@
 use crate::raymod::*;
+use std::f64::consts::*;
+
 
 /// A quaternion
 pub struct Quat(Vec3, f64);
@@ -113,5 +115,76 @@ impl std::ops::Mul<Quat> for Quat {
             w1 * z2 + z1 * w2 + x1 * y2 - y1 * x2,
             w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2,
         )
+    }
+}
+
+
+pub struct Translate {
+    pub shape: Box<dyn Shape>,
+    pub offset: Vec3,
+}
+impl Translate {
+    pub fn new(shape: Box<dyn Shape>, offset: Vec3) -> Self {
+        Self { shape, offset }
+    }
+}
+impl Shape for Translate {
+    fn hit(&self, ray: &Ray, t0: f64, t1: f64) -> Option<HitInfo> {
+        let moved_ray = Ray::new(ray.o - self.offset, ray.d);
+        if let Some(hit) = self.shape.hit(&moved_ray, t0, t1) {
+            Some(HitInfo { p: hit.p + self.offset, ..hit })
+        } else {
+            None
+        }
+    }
+    fn bounding_box(&self) -> Option<AABB> {
+        if let Some(aabb)=self.shape.bounding_box() {
+            let min = aabb.min +self.offset;
+            let max = aabb.max +self.offset;
+            Some(AABB{min,max})
+        }else{
+            None
+        }
+    }
+}
+pub struct Rotate {
+    pub shape: Box<dyn Shape>,
+    pub quat: Quat,
+}
+impl Rotate {
+    pub fn new(shape: Box<dyn Shape>, axis: Vec3, angle: f64) -> Self {
+        Self { shape, quat: Quat::from_rot(axis, angle.to_radians()) }
+    }
+}
+impl Shape for Rotate {
+    fn hit(&self, ray: &Ray, t0: f64, t1: f64) -> Option<HitInfo> {
+        let revq = self.quat.conj();
+        let rotated_ray = Ray::new(revq.rotate(ray.o), revq.rotate(ray.d));
+        if let Some(hit) = self.shape.hit(&rotated_ray, t0, t1) {
+            Some(HitInfo { p: self.quat.rotate(hit.p), n: self.quat.rotate(hit.n), ..hit })
+        } else {
+            None
+        }
+    }
+    fn bounding_box(&self) -> Option<AABB> {
+        if let Some(aabb)=self.shape.bounding_box() {
+            let mut min=Vec3::new(-f64::INFINITY,-f64::INFINITY,-f64::INFINITY);
+            let mut max=Vec3::new( f64::INFINITY, f64::INFINITY, f64::INFINITY);
+            for _i in 0..2 {
+                for _j in 0..2 {
+                    for _k in 0..2{
+                        let x=_i as f64 * aabb.max.x + (1-_i)as f64 * aabb.min.x;
+                        let y=_j as f64 * aabb.max.y + (1-_j)as f64 * aabb.min.y;
+                        let z=_k as f64 * aabb.max.z + (1-_k)as f64 * aabb.min.z;
+                        let tester = self.quat.rotate(Vec3{x,y,z});
+                        min.x=min.x.min(tester.x);
+                        max.x=max.x.max(tester.x);
+                    }
+                }
+            }
+            Some(AABB{min,max})
+        }else{
+            None
+        }
     }
 }

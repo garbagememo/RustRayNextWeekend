@@ -286,21 +286,29 @@ impl ShapeList {
         ));
 
         self.push(Box::new(
-            RectAngle::new(
-                Vec3::new(130.0, 0.0, 65.0),Vec3::new(295.0, 165.0, 230.0),
-                Arc::new(
-                    Lambertian::new(Box::new(ColorTexture::new(white)))
-                )
-	        )
+            Translate::new(Box::new(
+                Rotate::new(Box::new(
+                    RectAngle::new(
+                        Vec3::new(0.0, 0.0, 0.0),Vec3::new(165.0, 165.0, 165.0),
+                        Arc::new(
+                            Lambertian::new(Box::new(ColorTexture::new(white)))
+                        )
+	            )),
+                    Vec3::new(0.0,1.0,0.0),-18.0)
+            ),Vec3::new(130.0, 0.0, 65.0) )    
         ));
 	
         self.push(Box::new(
-            RectAngle::new(
-                Vec3::new(265.0, 0.0, 295.0),Vec3::new(430.0, 330.0, 460.0),
-                Arc::new(
-                    Lambertian::new(Box::new(ColorTexture::new(white)))
-                )
-	        )
+            Translate::new(Box::new(
+                Rotate::new(Box::new(
+                    RectAngle::new(
+                        Vec3::new(0.0, 0.0, 0.0),Vec3::new(165.0, 330.0, 165.0),
+                        Arc::new(
+                            Lambertian::new(Box::new(ColorTexture::new(white)))
+                        )
+	            )),
+                    Vec3::new(0.0,1.0,0.0),15.0)
+            ),Vec3::new(265.0, 0.0, 295.0) )    
         ));
 	
         // simple_scene用カメラ
