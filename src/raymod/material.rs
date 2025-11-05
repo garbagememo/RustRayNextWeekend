@@ -1,6 +1,6 @@
 use crate::raymod::*;
-use std::sync::Arc;
 
+#[allow(unused)]
 pub trait Material: Sync + Send {
     fn scatter(&self, ray: &Ray, hit: &HitInfo) -> Option<ScatterInfo>;
     fn emitted(&self, ray: &Ray, hit: &HitInfo) -> Color {
@@ -106,11 +106,12 @@ impl DiffuseLight {
     }
 }
 
+#[allow(unused)]
 impl Material for DiffuseLight {
-    fn scatter(&self, _ray: &Ray, _hit: &HitInfo) -> Option<ScatterInfo> {
+    fn scatter(&self, ray: &Ray, hit: &HitInfo) -> Option<ScatterInfo> {
         None
     }
-    fn emitted(&self, _ray: &Ray, hit: &HitInfo) -> Color {
+    fn emitted(&self, ray: &Ray, hit: &HitInfo) -> Color {
         self.emit.value(hit.u, hit.v, hit.p)
     }
 }
@@ -135,7 +136,7 @@ impl Lambertian {
 }
 
 impl Material for Lambertian {
-    fn scatter(&self, _ray: &Ray, hit: &HitInfo) -> Option<ScatterInfo> {
+    fn scatter(&self, ray: &Ray, hit: &HitInfo) -> Option<ScatterInfo> {
         let target = hit.p + hit.n + Vec3::random_hemisphere();
         let albedo = self.albedo.value(hit.u, hit.v, hit.p);
         Some(ScatterInfo::new(Ray::new(hit.p, target - hit.p), albedo))
@@ -153,9 +154,9 @@ impl Metal {
     }
 }
 impl Material for Metal {
-    fn scatter(&self, _ray: &Ray, hit: &HitInfo) -> Option<ScatterInfo> {
-        let mut reflected = _ray.d.norm().reflect(hit.n);
-        reflected = reflected + Vec3::random_hemisphere() * self.fuzz;
+    fn scatter(&self,ray: &Ray, hit: &HitInfo) -> Option<ScatterInfo> {
+        let mut reflected = ray.d.norm().reflect(hit.n);
+        reflected = reflected + self.fuzz*Vec3::random_hemisphere() ;
         if reflected.dot(&hit.n) > 0.0 {
             let albedo = self.albedo.value(hit.u, hit.v, hit.p);
             Some(ScatterInfo::new(Ray::new(hit.p, reflected), albedo))
@@ -194,7 +195,7 @@ impl Material for Dielectric {
                 )
             }
         };
-        if let Some(refracted) = (ray.d * -1.0).refract(outward_normal, ni_over_nt) {
+        if let Some(refracted) = (-ray.d ).refract(outward_normal, ni_over_nt) {
             if Vec3::random_full().x > Self::schlick(cosine, self.ri) {
                 return Some(ScatterInfo::new(
                     Ray::new(hit.p, refracted),

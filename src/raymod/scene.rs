@@ -33,9 +33,9 @@ impl Camera {
         let v = w % u;
 
         let origin = lookfrom;
-        let horizontal = u * focus_dist * viewport_width;
-        let vertical = v * focus_dist * viewport_height;
-        let upper_left_corner = origin - horizontal / 2.0 + vertical / 2.0 - w * focus_dist;
+        let horizontal = focus_dist * viewport_width * u;
+        let vertical = focus_dist * viewport_height * v;
+        let upper_left_corner = origin - horizontal / 2.0 + vertical / 2.0 - focus_dist * w;
         let lens_radius = aperture / 2.0;
 
         Camera {
@@ -52,10 +52,10 @@ impl Camera {
 
     pub fn get_ray(&self, s: f64, t: f64) -> Ray {
         let rd = Vec3::random_in_unit_disk() * self.lens_radius;
-        let offset = self.u * rd.x + self.v * rd.y;
+        let offset = rd.x*self.u + rd.y*self.v ;
         Ray::new(
             self.origin + offset,
-            self.upper_left_corner + self.horizontal * s - self.vertical * t - self.origin - offset,
+            self.upper_left_corner + s * self.horizontal - t * self.vertical - self.origin - offset,
         )
     }
 }

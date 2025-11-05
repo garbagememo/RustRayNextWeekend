@@ -1,5 +1,4 @@
 use crate::raymod::*;
-use std::f64::consts::*;
 
 
 /// A quaternion
@@ -170,12 +169,12 @@ impl Shape for Rotate {
         if let Some(aabb)=self.shape.bounding_box() {
             let mut min=Vec3::new( f64::INFINITY, f64::INFINITY, f64::INFINITY);
             let mut max=Vec3::new(-f64::INFINITY,-f64::INFINITY,-f64::INFINITY);
-            for _i in 0..2 {
-                for _j in 0..2 {
-                    for _k in 0..2{
-                        let x=_i as f64 * aabb.max.x + (1-_i)as f64 * aabb.min.x;
-                        let y=_j as f64 * aabb.max.y + (1-_j)as f64 * aabb.min.y;
-                        let z=_k as f64 * aabb.max.z + (1-_k)as f64 * aabb.min.z;
+            for i in 0..2 {
+                for j in 0..2 {
+                    for k in 0..2{
+                        let x=i as f64 * aabb.max.x + (1-i)as f64 * aabb.min.x;
+                        let y=j as f64 * aabb.max.y + (1-j)as f64 * aabb.min.y;
+                        let z=k as f64 * aabb.max.z + (1-k)as f64 * aabb.min.z;
                         let tester = self.quat.rotate(Vec3{x,y,z});
                         min.x=min.x.min(tester.x);
                         max.x=max.x.max(tester.x);

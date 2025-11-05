@@ -1,4 +1,4 @@
-mod aabb;
+
 mod bvh;
 mod material;
 mod optarg;
@@ -6,7 +6,7 @@ mod rayunit;
 mod scene;
 mod vec3;
 mod quat;
-pub use self::aabb::*;
+
 pub use self::bvh::*;
 pub use self::material::*;
 pub use self::optarg::*;

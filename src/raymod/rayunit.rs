@@ -179,23 +179,23 @@ impl Shape for Rect {
 }
 
 pub struct RectAngle {
-    p0:Vec3,
-    p1:Vec3,
+    p_min:Vec3,
+    p_max:Vec3,
     shapes:ShapeList,
 }
 
 impl RectAngle {
-    pub fn new(p01: Vec3, p11: Vec3, material: Arc<dyn Material>) -> Self{
-        let mut p0=Vec3::new(p01.x.min(p11.x),p01.y.min(p11.y),p01.z.min(p11.z));
-        let mut p1=Vec3::new(p01.x.max(p11.x),p01.y.max(p11.y),p01.z.max(p11.z));
+    pub fn new(a: Vec3, b: Vec3, material: Arc<dyn Material>) -> Self{
+        let p_min=Vec3::new(a.x.min(b.x),a.y.min(b.y),a.z.min(b.z));
+        let p_max=Vec3::new(a.x.max(b.x),a.y.max(b.y),a.z.max(b.z));
         let mut shapes = ShapeList::new();
-        shapes.push(Box::new(Rect::new(p0.x,p1.x,p0.y,p1.y,p1.z,RectAxisType::XY,Arc::clone(&material)) ));
-        shapes.push(Box::new(Rect::new(p0.x,p1.x,p0.y,p1.y,p0.z,RectAxisType::XY,Arc::clone(&material)) ));
-        shapes.push(Box::new(Rect::new(p0.x,p1.x,p0.z,p1.z,p1.y,RectAxisType::XZ,Arc::clone(&material)) ));
-        shapes.push(Box::new(Rect::new(p0.x,p1.x,p0.z,p1.z,p0.y,RectAxisType::XZ,Arc::clone(&material)) ));
-        shapes.push(Box::new(Rect::new(p0.y,p1.y,p0.z,p1.z,p0.x,RectAxisType::YZ,Arc::clone(&material)) ));
-        shapes.push(Box::new(Rect::new(p0.y,p1.y,p0.z,p1.z,p0.x,RectAxisType::YZ,Arc::clone(&material)) ));
-        Self { p0,p1,shapes}
+        shapes.push(Box::new(Rect::new(p_min.x,p_max.x,p_min.y,p_max.y,p_max.z,RectAxisType::XY,Arc::clone(&material)) ));
+        shapes.push(Box::new(Rect::new(p_min.x,p_max.x,p_min.y,p_max.y,p_min.z,RectAxisType::XY,Arc::clone(&material)) ));
+        shapes.push(Box::new(Rect::new(p_min.x,p_max.x,p_min.z,p_max.z,p_max.y,RectAxisType::XZ,Arc::clone(&material)) ));
+        shapes.push(Box::new(Rect::new(p_min.x,p_max.x,p_min.z,p_max.z,p_min.y,RectAxisType::XZ,Arc::clone(&material)) ));
+        shapes.push(Box::new(Rect::new(p_min.y,p_max.y,p_min.z,p_max.z,p_min.x,RectAxisType::YZ,Arc::clone(&material)) ));
+        shapes.push(Box::new(Rect::new(p_min.y,p_max.y,p_min.z,p_max.z,p_min.x,RectAxisType::YZ,Arc::clone(&material)) ));
+        Self { p_min,p_max,shapes}
     }
 }
 
@@ -204,7 +204,8 @@ impl Shape for RectAngle {
         self.shapes.hit(ray, t0, t1)
     }
     fn bounding_box(&self) -> Option<AABB> {
-        let mut min=self.p0;let mut max=self.p1;
+        let min=self.p_min;
+        let max=self.p_max;
         Some(AABB { min, max })
     }
 }

@@ -1,5 +1,3 @@
-use rand::prelude::*;
-use rayon::prelude::*;
 use std::fs;
 use std::io::Write;
 use std::ops::{Add, Div, Mul, Neg, Rem, Sub};
@@ -125,6 +123,12 @@ impl Mul<f64> for Vec3 {
     type Output = Vec3;
     fn mul(self, rhs: f64) -> Self {
         Vec3::new(self.x * rhs, self.y * rhs, self.z * rhs)
+    }
+}
+impl Mul<Vec3> for f64 {
+    type Output = Vec3;
+    fn mul(self, rhs: Vec3) -> Vec3 {
+        Vec3::new(self * rhs.x, self * rhs.y, self * rhs.z)
     }
 }
 
