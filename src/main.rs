@@ -69,6 +69,10 @@ fn main() {
             cam = world.cornellbox_scene();
             background=Vec3::zero();
         }
+        7 =>{
+            cam = world.cornell_scene();
+            background=Vec3::zero();
+        }
         _ => {
             cam = world.simple_scene();
         }
