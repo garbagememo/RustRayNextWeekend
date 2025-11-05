@@ -3,8 +3,8 @@ use raymod::*;
 
 use rayon::prelude::*;
 
+#[allow(unused)]
 use std::io::Write;
-use std::sync::Arc;
 
 fn ray_color(r: &Ray, world: &dyn Shape, depth: i64, background: Vec3) -> Vec3 {
     if depth <= 0 {
@@ -30,6 +30,7 @@ fn ray_color(r: &Ray, world: &dyn Shape, depth: i64, background: Vec3) -> Vec3 {
 fn main() {
     let args = parameters();
     println!("{:?}", args);
+    println!("sampling(use subpixel)={:?}",args.s*4);
 
     let w: usize = args.w;
     let h: usize = ((w as f64) / ASPECT_RATIO) as usize;
