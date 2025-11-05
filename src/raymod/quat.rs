@@ -168,8 +168,8 @@ impl Shape for Rotate {
     }
     fn bounding_box(&self) -> Option<AABB> {
         if let Some(aabb)=self.shape.bounding_box() {
-            let mut min=Vec3::new(-f64::INFINITY,-f64::INFINITY,-f64::INFINITY);
-            let mut max=Vec3::new( f64::INFINITY, f64::INFINITY, f64::INFINITY);
+            let mut min=Vec3::new( f64::INFINITY, f64::INFINITY, f64::INFINITY);
+            let mut max=Vec3::new(-f64::INFINITY,-f64::INFINITY,-f64::INFINITY);
             for _i in 0..2 {
                 for _j in 0..2 {
                     for _k in 0..2{
@@ -179,6 +179,10 @@ impl Shape for Rotate {
                         let tester = self.quat.rotate(Vec3{x,y,z});
                         min.x=min.x.min(tester.x);
                         max.x=max.x.max(tester.x);
+                        min.y=min.y.min(tester.y);
+                        max.y=max.y.max(tester.y);
+                        min.z=min.z.min(tester.z);
+                        max.z=max.z.max(tester.z);
                     }
                 }
             }

@@ -204,8 +204,7 @@ impl Shape for RectAngle {
         self.shapes.hit(ray, t0, t1)
     }
     fn bounding_box(&self) -> Option<AABB> {
-        let min = Vec3::new(self.p0.x.min(self.p1.x),self.p0.y.min(self.p1.y),self.p0.z.min(self.p1.z) );
-        let max = Vec3::new(self.p0.x.min(self.p1.x),self.p0.y.min(self.p1.y),self.p0.z.min(self.p1.z) );
+        let mut min=self.p0;let mut max=self.p1;
         Some(AABB { min, max })
     }
 }
