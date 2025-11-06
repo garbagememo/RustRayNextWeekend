@@ -32,11 +32,10 @@ fn main() {
     println!("{:?}", args);
     println!("sampling(use subpixel)={:?}",args.s*4);
 
-    let w: usize = args.w;
-    let h: usize = ((w as f64) / ASPECT_RATIO) as usize;
+    let mut w: usize = args.w;
+    let mut h: usize = ((w as f64) / WIDE_ASPECT) as usize;
     let samps: usize = args.s;
 
-    let mut image = vec![Color::zero(); (w * h) as usize];
 
     let MAX_DEPTH: i64 = 32;
 
@@ -45,7 +44,9 @@ fn main() {
     //オリジナルはRayの関数だがとりあえず定数で
     let cam: Camera;
     match args.m {
-        0 => {
+        0 => {//デフォルトはゼロ
+            w = args.w;
+            h = ((w as f64) / SQUARE_ASPECT) as usize;
      	    background=Vec3::new(0.0,0.0,0.0);
             cam = world.cornellbox_scene();
         }
@@ -67,10 +68,14 @@ fn main() {
             cam = world.emitte_squre_scene();
         }
         6 => {
+            w = args.w;
+            h = ((w as f64) / SQUARE_ASPECT) as usize;
             cam = world.cornellbox_scene();
             background=Vec3::zero();
         }
         7 =>{
+            w = args.w;
+            h = ((w as f64) / SQUARE_ASPECT) as usize;
             cam = world.cornell_scene();
             background=Vec3::zero();
         }
@@ -79,6 +84,7 @@ fn main() {
         }
     }
 
+    let mut image = vec![Color::zero(); (w * h) as usize];
     let bands: Vec<(usize, &mut [Color])> = image.chunks_mut(w as usize).enumerate().collect();
     bands.into_par_iter().for_each(|(y, band)| {
         for x in 0..w {
