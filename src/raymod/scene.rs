@@ -100,7 +100,7 @@ impl ShapeList {
             lookat,
             vup,
             20.0,
-            ASPECT_RATIO,
+            WIDE_ASPECT,
             aperture,
             dist_to_focus,
         );
@@ -144,7 +144,7 @@ impl ShapeList {
             lookat,
             vup,
             20.0,
-            ASPECT_RATIO,
+            WIDE_ASPECT,
             aperture,
             dist_to_focus,
         );
@@ -179,18 +179,18 @@ impl ShapeList {
             lookat,
             vup,
             20.0,
-            ASPECT_RATIO,
+            WIDE_ASPECT,
             aperture,
             dist_to_focus,
         );
     }
     pub fn emitte_squre_scene(&mut self) -> Camera {
         self.push(Box::new(Rect::new(
-	    0.0,2.0,0.0,-2.0,-2.0,RectAxisType::YZ,
-	    Arc::new(
-		DiffuseLight::new(Box::new(ColorTexture::new(
-		    Vec3::new(1.0, 1.0, 1.0,))))
-	    ),
+            0.0,2.0,0.0,-2.0,-2.0,RectAxisType::YZ,
+            Arc::new(
+                DiffuseLight::new(Box::new(ColorTexture::new(
+                    Vec3::new(1.0, 1.0, 1.0,))))
+            ),
         )));
         self.push(Box::new(Sphere::new(
             Vec3::new(0.0, 0.5, -1.0),
@@ -198,7 +198,7 @@ impl ShapeList {
             Arc::new(
                 Lambertian::new(Box::new(ColorTexture::new(
                     Vec3::new(0.5,0.5,0.5))))
-	    )
+            )
         )));
         self.push(Box::new(Sphere::new(
             Vec3::new(0.0, -100.1, 0.0),
@@ -220,7 +220,7 @@ impl ShapeList {
             lookat,
             vup,
             20.0,
-            ASPECT_RATIO,
+            WIDE_ASPECT,
             aperture,
             dist_to_focus,
         );
@@ -234,11 +234,11 @@ impl ShapeList {
         //light
         self.push(Box::new(
             Rect::new(
-	            213.0, 343.0, 227.0, 332.0, 554.0,RectAxisType::XZ,
-	            Arc::new(
-		            DiffuseLight::new(Box::new(ColorTexture::new(
-		                Vec3::new(15.0, 15.0, 15.0,))))
-	            ),
+                    213.0, 343.0, 227.0, 332.0, 554.0,RectAxisType::XZ,
+                    Arc::new(
+                            DiffuseLight::new(Box::new(ColorTexture::new(
+                                Vec3::new(15.0, 15.0, 15.0,))))
+                    ),
             )
         ));
         
@@ -248,7 +248,7 @@ impl ShapeList {
                 Arc::new(
                     Lambertian::new(Box::new(ColorTexture::new(green)))
                 )
-	        )
+                )
         ));
         
         self.push(Box::new(
@@ -257,7 +257,7 @@ impl ShapeList {
                 Arc::new(
                     Lambertian::new(Box::new(ColorTexture::new(red)))
                 )
-	        )
+                )
         ));
         
         self.push(Box::new(
@@ -266,7 +266,7 @@ impl ShapeList {
                 Arc::new(
                     Lambertian::new(Box::new(ColorTexture::new(white)))
                 )
-	        )
+                )
         ));
         self.push(Box::new(
             Rect::new(
@@ -274,7 +274,7 @@ impl ShapeList {
                 Arc::new(
                     Lambertian::new(Box::new(ColorTexture::new(white)))
                 )
-	        )
+                )
         ));
         self.push(Box::new(
             Rect::new(
@@ -282,7 +282,7 @@ impl ShapeList {
                 Arc::new(
                     Lambertian::new(Box::new(ColorTexture::new(white)))
                 )
-	        )
+                )
         ));
         
         let mut box_list1: Vec<Box<dyn Shape>> = Vec::new();
@@ -294,13 +294,13 @@ impl ShapeList {
                         Arc::new(
                             Lambertian::new(Box::new(ColorTexture::new(white)))
                         )
-	                ))
+                        ))
                     ,Vec3::new(0.0,1.0,0.0),-18.0)
                 )
                 ,Vec3::new(130.0, 0.0, 65.0)
             )    
         ));
-	
+        
         box_list1.push(Box::new(
             Translate::new(Box::new(
                 Rotate::new(Box::new(
@@ -309,12 +309,12 @@ impl ShapeList {
                         Arc::new(
                             Lambertian::new(Box::new(ColorTexture::new(white)))
                         )
-	            )),
+                    )),
                     Vec3::new(0.0,1.0,0.0),15.0)
             ),Vec3::new(265.0, 0.0, 295.0) )    
         ));
         self.push(Box::new(BVH::new(box_list1)));
-	
+        
         // simple_scene用カメラ
         let lookfrom = Vec3::new(278.0, 278.0, -800.0);
         let lookat = Vec3::new(278.0, 278.0, 0.0);
@@ -328,7 +328,7 @@ impl ShapeList {
             lookat,
             vup,
             40.0,
-            ASPECT_RATIO,
+            SQUARE_ASPECT,
             aperture,
             dist_to_focus,
         );
@@ -342,11 +342,11 @@ impl ShapeList {
         //light
         self.push(Box::new(
             Rect::new(
-	            213.0, 343.0, 227.0, 332.0, 554.0,RectAxisType::XZ,
-	            Arc::new(
-		            DiffuseLight::new(Box::new(ColorTexture::new(
-		                Vec3::new(15.0, 15.0, 15.0,))))
-	            ),
+                    213.0, 343.0, 227.0, 332.0, 554.0,RectAxisType::XZ,
+                    Arc::new(
+                            DiffuseLight::new(Box::new(ColorTexture::new(
+                                Vec3::new(15.0, 15.0, 15.0,))))
+                    ),
             )
         ));
         
@@ -356,7 +356,7 @@ impl ShapeList {
                 Arc::new(
                     Lambertian::new(Box::new(ColorTexture::new(green)))
                 )
-	        )
+            )
         ));
         
         self.push(Box::new(
@@ -365,7 +365,7 @@ impl ShapeList {
                 Arc::new(
                     Lambertian::new(Box::new(ColorTexture::new(red)))
                 )
-	        )
+            )
         ));
         
         self.push(Box::new(
@@ -374,7 +374,7 @@ impl ShapeList {
                 Arc::new(
                     Lambertian::new(Box::new(ColorTexture::new(white)))
                 )
-	        )
+            )
         ));
         self.push(Box::new(
             Rect::new(
@@ -382,7 +382,7 @@ impl ShapeList {
                 Arc::new(
                     Lambertian::new(Box::new(ColorTexture::new(white)))
                 )
-	        )
+            )
         ));
         self.push(Box::new(
             Rect::new(
@@ -390,7 +390,7 @@ impl ShapeList {
                 Arc::new(
                     Lambertian::new(Box::new(ColorTexture::new(white)))
                 )
-	        )
+            )
         ));
 
         
@@ -402,25 +402,25 @@ impl ShapeList {
                 Arc::new(
                     Lambertian::new(Box::new(ColorTexture::new(white)))
                 )
-	        )
+            )
         ));
-	
+        
         box_list1.push(Box::new(
             RectAngle::new(
                 Vec3::new(265.0, 0.0, 295.0),Vec3::new(430.0, 330.0, 460.0),
                 Arc::new(
                     Lambertian::new(Box::new(ColorTexture::new(white)))
                 )
-	        )
+            )
         ));
         self.push(Box::new(BVH::new(box_list1)));
 
-	
-        // simple_scene用カメラ
+        
+        // cornelbox用カメラ
         let lookfrom = Vec3::new(278.0, 278.0, -800.0);
         let lookat = Vec3::new(278.0, 278.0, 0.0);
         let vup = Vec3::new(0.0, 1.0, 0.0);
-
+        
         let dist_to_focus = (lookfrom - lookat).length().sqrt();
         let aperture = 0.1;
 
@@ -429,7 +429,7 @@ impl ShapeList {
             lookat,
             vup,
             40.0,
-            ASPECT_RATIO,
+            SQUARE_ASPECT,
             aperture,
             dist_to_focus,
         );
@@ -514,7 +514,7 @@ impl ShapeList {
             lookat,
             vup,
             20.0,
-            ASPECT_RATIO,
+            WIDE_ASPECT,
             aperture,
             dist_to_focus,
         );

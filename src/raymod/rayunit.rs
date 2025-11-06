@@ -158,22 +158,22 @@ impl Shape for Rect {
     }
 
     fn bounding_box(&self) -> Option<AABB> {
-	let min:Vec3;
-	let max:Vec3;
-	match self.axis {
+        let min:Vec3;
+        let max:Vec3;
+        match self.axis {
             RectAxisType::XY => {
-		min = Vec3::new(self.x0, self.y0, self.k - EPS10);
-		max = Vec3::new(self.x1, self.y1, self.k + EPS10);
+                min = Vec3::new(self.x0, self.y0, self.k - EPS10);
+                max = Vec3::new(self.x1, self.y1, self.k + EPS10);
             }
             RectAxisType::XZ =>{
-		min = Vec3::new(self.x0, self.k - EPS10, self.y0);
-		max = Vec3::new(self.x1, self.k + EPS10, self.y1);
+                min = Vec3::new(self.x0, self.k - EPS10, self.y0);
+                max = Vec3::new(self.x1, self.k + EPS10, self.y1);
             }
             RectAxisType::YZ => {
-		min = Vec3::new(self.k - EPS10, self.x0, self.y0);
-		max = Vec3::new(self.k + EPS10, self.x1, self.y1);
+                min = Vec3::new(self.k - EPS10, self.x0, self.y0);
+                max = Vec3::new(self.k + EPS10, self.x1, self.y1);
             }
-	}
+        }
         Some(AABB { min, max })
     }
 }
